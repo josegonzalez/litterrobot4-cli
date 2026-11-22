@@ -587,7 +587,10 @@ func cmdHistory(ctx context.Context, args []string, out io.Writer) error {
 	fmt.Fprintln(tw, "TIME\tEVENT\tVALUE")
 	for _, e := range entries {
 		ts := e.Timestamp
-		if parsed, err := time.Parse(time.RFC3339Nano, ts); err == nil {
+		// Whisker returns "2006-01-02 15:04:05.000000000" in UTC.
+		if parsed, err := time.Parse("2006-01-02 15:04:05.999999999", ts); err == nil {
+			ts = parsed.Local().Format("2006-01-02 15:04:05")
+		} else if parsed, err := time.Parse(time.RFC3339Nano, ts); err == nil {
 			ts = parsed.Local().Format("2006-01-02 15:04:05")
 		}
 		value := e.StateString
